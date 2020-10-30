@@ -6,7 +6,7 @@ const path = require("path");
 /** @type import('webpack').Configuration */
 const config = {
   mode: "development",
-  devtool: false,
+  devtool: "eval-cheap-source-map",
   cache: {
     type: "filesystem",
     buildDependencies: {

@@ -13,11 +13,11 @@ module.exports = {
   },
   module: {
     rules: [
-      {
-        test: [/\.js$/, /\.ts$/],
-        exclude: /node_modules/,
-        loader: "babel-loader",
-      },
+      // {
+      //   test: [/\.js$/, /\.ts$/],
+      //   exclude: /node_modules/,
+      //   loader: "babel-loader",
+      // },
       {
         test: [/\.ts$/],
         exclude: /node_modules/,
