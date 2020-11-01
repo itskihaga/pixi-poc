@@ -18,8 +18,8 @@ export const connectStoreToPIXI = (store: AppStore): void => {
   const createUnit = ({ name, x, y, color }: Player) => {
     const container = new Container();
     units.set(name, new UnitView(container));
-    container.x = x * 10;
-    container.y = y * 10;
+    container.x = x * UNIT_SIZE;
+    container.y = y * UNIT_SIZE;
     const unit = new Graphics()
       .beginFill(color)
       .drawRect(0, 0, UNIT_SIZE, UNIT_SIZE)
@@ -36,7 +36,6 @@ export const connectStoreToPIXI = (store: AppStore): void => {
         .drawRect(UNIT_SIZE * move.x, UNIT_SIZE * move.y, UNIT_SIZE, UNIT_SIZE)
         .endFill()
         .addListener("pointerdown", () => {
-          console.log(move);
           store.publish("MOVE_ME", move);
         });
       handler.interactive = true;

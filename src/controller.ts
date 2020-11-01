@@ -12,15 +12,15 @@ const colors = [
 ];
 const createNewPlayer = (name: string): Player => {
   return {
-    x: Math.floor(Math.random() * 50),
-    y: Math.floor(Math.random() * 50),
+    x: Math.floor(Math.random() * 20),
+    y: Math.floor(Math.random() * 20),
     color: colors[Math.floor(Math.random() * colors.length)],
     name,
   };
 };
 export const connectStoreToController = (store: AppStore): void => {
   store.subscribe("INIT", () => {
-    const name = Math.floor(Math.random() * 100000).toString();
+    const name = Math.floor(Math.random() * 10000000).toString();
     const player: Player = createNewPlayer(name);
     store.publish("ADD_ME", player);
   });
