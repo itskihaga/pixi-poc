@@ -6,19 +6,41 @@ export interface Player {
   color: number;
   name: string;
 }
+
+const movePlayers = (players: Player[], move: Move): Player[] => {
+  return players.map((e) =>
+    e.name == move.id ? { ...e, x: e.x + move.x, y: e.y + move.y } : e
+  );
+};
+
+export interface Move {
+  id: string;
+  x: number;
+  y: number;
+}
 export interface AppState {
   players: Player[];
 }
 type AppActions = {
   ADD_ME: Player;
-  ADD_PLAYERS: Player[];
+  MOVE_ME: Move;
+  MOVE_PLAYER: Move;
+  ADD_PLAYER: Player;
   INIT: void;
 };
 export const reducers: Reducers<AppState, AppActions> = {
   ADD_ME: (prev, player) => ({ ...prev, players: [...prev.players, player] }),
-  ADD_PLAYERS: (prev, players) => ({
+  ADD_PLAYER: (prev, player) => ({
     ...prev,
-    players: [...prev.players, ...players],
+    players: [...prev.players, player],
+  }),
+  MOVE_ME: (prev, move: Move) => ({
+    ...prev,
+    players: movePlayers(prev.players, move),
+  }),
+  MOVE_PLAYER: (prev, move) => ({
+    ...prev,
+    players: movePlayers(prev.players, move),
   }),
 };
 
