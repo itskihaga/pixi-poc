@@ -18,9 +18,9 @@ export interface Move {
   x: number;
   y: number;
 }
-export interface AppState {
+export type AppState = {
   players: Player[];
-}
+};
 type AppActions = {
   ADD_ME: Player;
   MOVE_ME: Move;
