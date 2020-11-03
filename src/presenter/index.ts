@@ -1,7 +1,8 @@
+import { createMultiKeyMap } from "@/libs/multikeymap";
 import { Application, Container, Graphics } from "pixi.js";
 
 import { AppStore, Move, Player } from "../store";
-import { fn, Point } from "./fn";
+import { createInteractionStore, Point } from "./fn";
 const elm: HTMLElement | null = document.getElementById("app");
 const app = new Application({
   width: 800,
@@ -13,12 +14,29 @@ if (elm) {
 const LENGTH = 20;
 
 const createInteractionLayer = (cb: (p: Point[]) => void) => {
-  let touching: false | Point[] = false;
+  const store = createInteractionStore();
+  const map = createMultiKeyMap<[number, number], Graphics>();
   const container = new Container();
-  container.addListener("pointerout", () => {
-    touching = false;
-  });
+  container.addListener("mouseout", () => store.publish("RESET", undefined));
   container.zIndex = 1000;
+  container.interactive = true;
+  store.subscribe("RESULTED", cb);
+  store.subscribe("SELECT", ({ x, y }) => {
+    const area = map.get([x, y]);
+    if (area) {
+      const selected = new Graphics()
+        .beginFill(0x000066, 0.8)
+        .drawRect(UNIT_SIZE * x, UNIT_SIZE * y, UNIT_SIZE, UNIT_SIZE)
+        .endFill();
+      area.addChild(selected);
+    }
+  });
+  store.subscribe("DESELECT", ({ x, y }) => {
+    const area = map.get([x, y]);
+    if (area) {
+      area.removeChildren();
+    }
+  });
   for (let x = 0; x < LENGTH; x++) {
     for (let y = 0; y < LENGTH; y++) {
       const border = new Graphics()
@@ -31,20 +49,10 @@ const createInteractionLayer = (cb: (p: Point[]) => void) => {
       container.addChild(area);
       container.addChild(border);
       area.interactive = true;
-      area.addListener("pointerdown", () => {
-        console.log("pointerdown", { x, y });
-        touching = [{ x, y }];
-      });
-      area.addListener("pointerup", () => {
-        console.log("pointerup", { x, y });
-        touching && cb(touching);
-        touching = false;
-      });
-      area.addListener("pointerover", () => {
-        if (touching) {
-          touching = fn(touching, { x, y });
-        }
-      });
+      area.addListener("pointerdown", () => store.publish("START", { x, y }));
+      area.addListener("pointerup", () => store.publish("END", undefined));
+      area.addListener("pointerover", () => store.publish("MOVE", { x, y }));
+      map.set([x, y], area);
       container.addChild(area);
     }
   }

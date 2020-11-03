@@ -15,19 +15,22 @@ export const createStore = <S extends State, T extends Actions>(
       }
     },
     publish(key, value) {
+      console.log(key, value); //FIXME: remove
       const reducer = reducers[key];
       const prev = state;
       const result = reducer ? reducer(state, value) : state;
       if (result instanceof Array) {
-        const [nextState, nextAction] = result;
+        const [nextState, ...nextActions] = result;
         state = nextState;
         subscribers[key]?.forEach((cb) => cb(value, state, prev));
-        if (nextAction instanceof Promise) {
-          nextAction.then((resolved) =>
-            store.publish(resolved.type, resolved.value)
-          );
-        } else {
-          store.publish(nextAction.type, nextAction.value);
+        for (const nextAction of nextActions) {
+          if (nextAction instanceof Promise) {
+            nextAction.then((resolved) =>
+              store.publish(resolved.type, resolved.value)
+            );
+          } else {
+            store.publish(nextAction.type, nextAction.value);
+          }
         }
       } else {
         state = result;
@@ -55,5 +58,5 @@ export type Reducers<S extends State, T extends Actions> = {
   [P in keyof T]?: (
     prev: S,
     action: T[P]
-  ) => S | [S, KeyValue<T> | Promise<KeyValue<T>>];
+  ) => S | [S, ...(KeyValue<T> | Promise<KeyValue<T>>)[]];
 };
